@@ -73,15 +73,17 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 ### To-do section
 
 1. Complete Timer.js and fill in functions:
-    a. Complete startTimer
-    b. Complete pauseTimer
-    c. Complete resetTimer
-    d. Complete return statement
+
+a. Complete startTimer
+b. Complete pauseTimer
+c. Complete resetTimer
+d. Complete return statement
 
 2. Complete CSS styling using Tailwind
-    a. Decide on style and formatting
-    b. Decide on color scheme
-    c. Begin base styling css and fonts
-    d. Complete style
+
+a. Decide on style and formatting
+b. Decide on color scheme
+c. Begin base styling css and fonts
+d. Complete style
 
 3. Compete App configuration
