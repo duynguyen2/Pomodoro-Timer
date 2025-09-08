@@ -6,6 +6,8 @@ import FormatTime from './components/FormatTime.jsx';
 import Controls from './components/Controls.jsx';
 import Settings from './components/Settings.jsx';
 import Alarm from './components/Alarm.jsx';
+import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+import "react-circular-progressbar/dist/styles.css";
 
 
 function App() {
@@ -22,8 +24,19 @@ function App() {
   const [isActive, setIsActive] = useState(false); // timer is active or not
   const [mode, setMode] = useState("pomodoro"); // mode for timer (e.g. work time, break)
   const [cycles, setCycles] = useState(4); // how many times does each cycle go through
-  const [volume, setVolume] = useState(0.4);
+  const [volume, setVolume] = useState(0.5);
+  const [fullPercentage, setFullPercentage] = useState(POMODORO_TIME);
   const songRef = useRef(null);
+
+  const getPathColor = () => {
+    if(mode === 'pomodoro') {
+      return '#ff6347';
+    } else if(mode === 'shortBreak') {
+      return '#87CEFA';
+    } else {
+      return '#3c8fc7ff';
+    }
+  }
 
   // timer running countdown
   useEffect(() => {
@@ -66,6 +79,35 @@ function App() {
     }
   }, [isActive]);
 
+  useEffect(() => {
+    if(songRef.current) {
+      songRef.current.volume = volume;
+    }
+  }, [volume]);
+
+  // Calculate percentage for CircularProgressbar
+  // Update the visual of the progress bar dynamically to each timer setting
+  useEffect(() => {
+    switch(mode) {
+      case('pomodoro'):
+        setFullPercentage(POMODORO_TIME);
+        break;
+      case('shortBreak'):
+        setFullPercentage(SHORT_BREAK);
+        break;
+      case('longBreak'):
+        setFullPercentage(LONG_BREAK);
+        break;
+      default:
+        setFullPercentage(POMODORO_TIME);
+    }
+  }, [mode, fullPercentage]);
+  const percentage = (timeLeft / fullPercentage) * 100;
+
+  const minutes = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+  const seconds = (timeLeft % 60).toString().padStart(2, '0');
+
+  
   return (
     
     <div>
@@ -73,9 +115,22 @@ function App() {
         <img src={viteLogo} className="logo" alt="Vite logo" />
       </a>
       <img src="/public/pomodoro-technique.png" />
-      <h1 style={ { backgroundColor: "#0a0a0a", padding: "1rem", borderRadius: "0.5rem"} }>Pomodoro Timer</h1>
+      <h1 style={ { backgroundColor: "#3c8fc7ff", padding: "1rem", borderRadius: "0.5rem"} }>Pomodoro Timer</h1>
       <h2>Mode: {mode === "pomodoro" ? "Focus Time" : "Break"}</h2>
-      <h2>Time Remaining: </h2> <FormatTime timeLeft={timeLeft}/>
+      <h2>Time Remaining: </h2>
+      <div style={{ marginLeft: '70px', width: '300px'}}>
+        <CircularProgressbar
+            value={percentage}
+            text={`${minutes}:${seconds}`}
+            styles={buildStyles({
+              pathColor: getPathColor(),
+              textColor: getPathColor(),
+              trailColor: '#d6d6d6',
+              strokeLinecap: 'round',
+          })}
+        />
+      </div>
+
       <h2>It is now {mode === "pomodoro" ? "Work Time" : "Break Time"}</h2>
       <Controls 
         isActive={isActive}
@@ -94,10 +149,22 @@ function App() {
       />
 
       <audio ref={songRef} src="04YourTown.mp3" id="song" loop />
-      <script>
-        const audio = document.getElementById("song");
-        audio.volume(0.1);
-      </script>
+      <div>
+        <label htmlFor='volume-slider'>Volume:</label>
+        <input
+          type='range'
+          id='volume-slider'
+          min='0'
+          max='1'
+          step='0.01'
+          value={volume}
+          onChange={ (e) => setVolume(parseFloat(e.target.value)) }
+          style={{ marginTop: '1.2rem', marginLeft: '1rem', width: '200px'}}
+        />
+      </div>
+
+        <Alarm />
+      
     </div>
     
     /* keeping vite default return for test server */
